@@ -9,22 +9,39 @@ public class Definition
 	/// </summary>
 	public static Vector3 GridOrigin = new Vector3(0,0,0);
 
-	/// <summary>
-	/// 网格宽度是10米
-	/// </summary>
-	public const float GridLength = 10f;
+
 
 	/// <summary>
-	/// 格子数是9*9
+	/// 单个网格长1米
 	/// </summary>
-	public const int GridNum = 9;
+	public const float CellSize = 1f;
+
+	/// <summary>
+	/// 角色可移动的格子数是9*9
+	/// </summary>
+	public const int GridWidthCount = 9;
+
+	/// <summary>
+	/// 角色可以移动的区域高度
+	/// </summary>
+	public const int GridPlayerHeightCount = 9;
+
+	/// <summary>
+	/// 总的网格是9 * 14；
+	/// </summary>
+	public const int GridHeightCount = 14;
 
 
-	static public float CellSize()
+
+	/// <summary>
+	/// 敌人所属区域： 9 * 5
+	/// </summary>
+	/// <returns>The enemy height.</returns>
+	static public int GridEnemyHeight()
 	{
-		return GridLength / GridNum;
+		return GridHeightCount - GridPlayerHeightCount;
 	}
-
+		
 
 	#region 坐标位置转换工具
 
@@ -37,15 +54,13 @@ public class Definition
 	static public Vector3 WorldToGrid(Vector3 worldPosition)
 	{
 
-		float GridCellSize = GridLength / GridNum;
-
 		float x = worldPosition.x - GridOrigin.x;
 		float z = worldPosition.z - GridOrigin.z;
 
-		int width = Mathf.FloorToInt(x / GridCellSize);
-		int height = Mathf.FloorToInt(z / GridCellSize);
+		int width = Mathf.FloorToInt(x / CellSize);
+		int height = Mathf.FloorToInt(z / CellSize);
 
-		Vector3 showPosition = new Vector3(width * GridCellSize + GridCellSize/2f, GridOrigin.y,height*GridCellSize+ GridCellSize/2f);
+		Vector3 showPosition = new Vector3(width * CellSize + CellSize/2f, GridOrigin.y,height*CellSize+ CellSize/2f);
 		return showPosition;
 	}
 
@@ -57,43 +72,53 @@ public class Definition
 	/// <param name="sideWidth">Side width.</param>
 	static public Vector3 GridToWorld(int x,int z)
 	{
-		float GridCellSize = GridLength / GridNum;
-		Vector3 showPosition = new Vector3(x * GridCellSize + GridCellSize/2f, GridOrigin.y ,z*GridCellSize+ GridCellSize/2f);
+		Vector3 showPosition = new Vector3(x * CellSize + CellSize/2f, GridOrigin.y ,z*CellSize+ CellSize/2f);
 		return showPosition;
+	}
+
+	/// <summary>
+	/// 获取区域类型
+	/// </summary>
+	/// <param name="coorX">Coor x.</param>
+	/// <param name="coorZ">Coor z.</param>
+	static public EAreaType GetAreaType(int coorX,int coorZ)
+	{
+		EAreaType aType = EAreaType.Player;
+		if(coorX < 0 || coorX >= GridWidthCount || coorX < 0|| coorZ >= GridHeightCount)
+		{
+			//--界外.
+			aType = EAreaType.Out;
+		}
+		else if(coorZ >= GridPlayerHeightCount)
+		{
+			aType  = EAreaType.Enemy;
+		}
+
+		return aType;
 	}
 
 	static public SGridCoordinate GetNextCoorinate(SGridCoordinate curCoor,EDirection nextDir)
 	{
-		SGridCoordinate nextCoordinate = curCoor;
-		nextCoordinate.Overstep = false;
+		SGridCoordinate nextCoor = curCoor;
 
 		switch (nextDir) {
 		case EDirection.Left:
-			nextCoordinate.x -= 1;
-			if (nextCoordinate.x < 0) 
-			{nextCoordinate.Overstep = true;}
+			nextCoor.x -= 1;
 			break;
-
 		case EDirection.Right:
-			nextCoordinate.x += 1;
-			if (nextCoordinate.x > Definition.GridNum - 1) 
-			{nextCoordinate.Overstep = true;}
+			nextCoor.x += 1;
 			break;
-
 		case EDirection.Up:
-			nextCoordinate.z += 1;
-			if (nextCoordinate.z > Definition.GridNum - 1) 
-			{nextCoordinate.Overstep = true;}
-
+			nextCoor.z += 1;
 			break;
 		case EDirection.Down:
-			nextCoordinate.z -= 1;
-			if (nextCoordinate.z < 0) 
-			{nextCoordinate.Overstep = true;}
+			nextCoor.z -= 1;
 			break;
 		}
 
-		return nextCoordinate;
+		nextCoor.MAreaType = GetAreaType(nextCoor.x,nextCoor.z);
+
+		return nextCoor;
 	}
 
 	/// <summary>

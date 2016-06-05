@@ -5,30 +5,20 @@
 public struct SGridCoordinate
 {
 	public int x, z;
-	//--越界坐标.
-	public bool Overstep;
+	public EAreaType MAreaType;
 
 	public SGridCoordinate (int _x, int _z)
 	{
 		this.x = _x;
 		this.z = _z;
-		this.Overstep = false;
+		this.MAreaType = Definition.GetAreaType(_x,_z);
 	}
 
 	public void Clean ()
 	{
 		this.x = -1;
 		this.z = -1;
-		this.Overstep = false;
+		this.MAreaType = EAreaType.Out;
 	}
-
-	public bool IsNone ()
-	{
-		return this.x == -1 && this.z == -1;
-	}
-
-	public bool IsEqual (SGridCoordinate coordinate)
-	{
-		return this.x == coordinate.x && this.z == coordinate.z ;
-	}
+		
 }

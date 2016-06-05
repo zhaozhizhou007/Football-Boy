@@ -18,7 +18,7 @@ public class BallMoveHelper : MonoBehaviour {
 			return;
 
 		float dis = transform.position.MDistanceIgnoreY(_aimPosition);
-		if(dis <= Definition.CellSize() / 2)
+		if(dis <= Definition.CellSize / 2)
 		{
 			//--如果球体中心点已经进入方格边缘，就表示已经完全占领了网格.
 			_aimGrid.NowOccupy();
